@@ -10,18 +10,18 @@ load_dotenv()
 api_key = os.getenv('OPENAI_API_KEY')
 openai.api_key = api_key
 
+
 # Get yfinance data
 stock = input("Select stock: ").upper()
 period = input("Select the time period: ").upper()
-selected_stock = yf.Ticker(stock)
-historical_data = selected_stock.history(period=period)
 
-# Prepare data for OpenAI
-historical_data_summary = historical_data.describe()
+# select financials and take querterly income:
+selected_stock = yf.Ticker(stock)
+stock_quarterly_income = (selected_stock.quarterly_income_stmt)
+
 
 # Create OpenAI promt
-prompt = f"Generate an abtract of the finantial data of {stock} from {period}:\n{historical_data_summary.to_string()}"
-prompt = f"Cuáles son las  {stock} from {period}:\n{historical_data_summary.to_string()}"
+prompt = f"Based on the following company financial data, how did this company performed? {stock_quarterly_income}"
 
 
 # Configure OpenAI response
