@@ -2,6 +2,7 @@
 
 import os
 import openai
+import textwrap
 import yfinance as yf
 from dotenv import load_dotenv
 
@@ -13,15 +14,15 @@ openai.api_key = api_key
 
 # Get yfinance data
 stock = input("Select stock: ").upper()
-period = input("Select the time period: ").upper()
 
 # select financials and take querterly income:
 selected_stock = yf.Ticker(stock)
 stock_quarterly_income = (selected_stock.quarterly_income_stmt)
-
+msft_stock = selected_stock = yf.Ticker("MSFT")
+msft_quarterly_income = (msft_stock.quarterly_income_stmt)
 
 # Create OpenAI promt
-prompt = f"Based on the following company financial data, how did this company performed? {stock_quarterly_income}"
+prompt = f"Based on the following two companies financial data, which company performed better? Firts company: {stock_quarterly_income} Seccond company: {msft_quarterly_income}"
 
 
 # Configure OpenAI response
@@ -31,5 +32,9 @@ response = openai.Completion.create(
     max_tokens=1000  
 )
 
-# Print OpenAI needed response 
-print(response.choices[0].text)
+# Give Format to text
+formatted_response = textwrap.fill(response.choices[0].text, width=80)
+
+# Print OpenAI response 
+print(formatted_response)
+
