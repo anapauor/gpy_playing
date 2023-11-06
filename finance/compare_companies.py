@@ -93,10 +93,10 @@ Companies symbols and names: \t {companies_names_dict} \t
 Finantial data: \t {companies_dict} \t
 Historical data: \t {companies_hist_data_dict}"""
 
-print(prompt)
+# print(prompt)
 
 # Configure OpenAI response
-response = openai.ChatCompletion.create(
+response = openai.chat.completions.create(
     model="gpt-3.5-turbo-16k",
     messages=[{ "role": "user", "content": prompt}],
     max_tokens=1000  

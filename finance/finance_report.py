@@ -26,15 +26,14 @@ prompt = f"Based on the following two companies financial data, which company pe
 
 
 # Configure OpenAI response
-response = openai.Completion.create(
-    engine="text-davinci-002",
-    prompt=prompt,
+response = openai.chat.completions.create(
+    model="gpt-3.5-turbo-16k",
+    messages=[{ "role": "user", "content": prompt}],
     max_tokens=1000  
 )
 
 # Give Format to text
-formatted_response = textwrap.fill(response.choices[0].text, width=80)
+formatted_response = textwrap.fill(response.choices[0].message.content, width=80)
 
 # Print OpenAI response 
 print(formatted_response)
-
