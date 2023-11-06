@@ -21,13 +21,17 @@ def select_stocks():
     """
     Function for creating a list of stocks from an input string separeted by commas
     """
+    
     stocks = input("Select stock: ")
     stocks_list = stocks.split(",")
     return stocks_list
 
+
 def get_companies_names(symbols_list):
     """"
-    Function for getting companies names based on stock symbol from prvided symbols list"""
+    Function for getting companies names based on stock symbol from prvided symbols list
+    """
+    
     data_dict = {}
     for c in symbols_list:
         symbol = c.strip()
@@ -42,6 +46,7 @@ def get_quarterly_income(company_symbol):
     """
     Function for getting quarterly income table report for company
     """
+
     company_thicker = yf.Ticker(company_symbol.strip())
     return company_thicker.quarterly_income_stmt
 
@@ -50,6 +55,7 @@ def get_companies_fininfo(companies):
     """
     Function for compailing each company financial info in a dict
     """
+
     companies_dict = {}
     for c in companies:  
         companies_dict[c.strip()] = get_quarterly_income(c)
@@ -59,8 +65,9 @@ def get_companies_fininfo(companies):
 
 def get_historical_data(company_symbol, period):
     """"
-    Funtion that shows information about the historical stock prices
+    Function that shows information about the historical stock prices
     """
+
     company_thicker = yf.Ticker(company_symbol.strip())
     hist_prices = company_thicker.history(period=period)
     return hist_prices
@@ -68,11 +75,12 @@ def get_historical_data(company_symbol, period):
 
 def get_companies_hist_data(companies, period):
     """"
-    Funtion compaling historical stock price data for each company in a dict
+    Function compiling historical stock prices for each company in a dict
     """
+
     companies_hist_data_dict = {}
     for c in companies:  
-        companies_dict[c.strip()] = get_historical_data(c, period)
+        companies_hist_data_dict[c.strip()] = get_historical_data(c, period)
 
     return companies_hist_data_dict
 
