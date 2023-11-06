@@ -80,19 +80,20 @@ def get_companies_hist_data(companies, period):
 
                                 ###### Execution ######
 
-companies = select_stocks()
-companies_dict = get_companies_fininfo(companies)
-companies_hist_data_dict = get_companies_hist_data(companies, "1mo")
-companies_names_dict = get_companies_names(companies)
+companies_symbol_list = select_stocks()
+companies_dict = get_companies_fininfo(companies_symbol_list)
+companies_hist_data_dict = get_companies_hist_data(companies_symbol_list, "1mo")
+companies_names_dict = get_companies_names(companies_symbol_list)
 
 
 # Create OpenAI promt
 prompt = f""""
-Based on the following companies financial data and historical data with complete names based on the provided symbols, which company performed better and based on their stock historical data which is in a lower price?\t 
-Companies symbols and names: {companies_names_dict} \t
-Finantial data: {companies_dict} \t
-Historical data: {companies_hist_data_dict}"""
+Based on the following companies financial data and historical data with complete names and stock symbols, which company performed better and which is in a lower price?\t 
+Companies symbols and names: \t {companies_names_dict} \t
+Finantial data: \t {companies_dict} \t
+Historical data: \t {companies_hist_data_dict}"""
 
+print(prompt)
 
 # Configure OpenAI response
 response = openai.ChatCompletion.create(
