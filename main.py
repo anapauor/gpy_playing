@@ -1,5 +1,5 @@
 
-from gpt_functions import create_content, resume_text
+from gpt_utils.gpt_functions import create_content, resume_text
 
 def main():
     
