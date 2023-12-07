@@ -27,18 +27,29 @@ def select_stocks():
     return stocks_list
 
 
-def get_companies_names(symbols_list):
+def get_company_name(symbol):
     """"
     Function for getting companies names based on stock symbol from prvided symbols list
     """
-    
-    data_dict = {}
-    for c in symbols_list:
-        symbol = c.strip()
+
+    try:
         response = urllib.request.urlopen(f'https://query2.finance.yahoo.com/v1/finance/search?q={symbol}')
         content = response.read()
         company_name = json.loads(content.decode('utf8'))['quotes'][0]['shortname']
-        data_dict[symbol] = company_name
+        return company_name
+
+    except Exception as e:
+        print(f"Error getting company name {symbol}: {e}. Verify company symbol.")
+        return None
+
+def gcreate_companies_names_dict(symbols_list):
+    """
+    Function for creating dictionary with companies names
+    """
+
+    data_dict = {}
+    for symbol in symbols_list:
+        data_dict[symbol.strip()] = get_company_name(symbol.strip())
     return data_dict
 
 
@@ -57,8 +68,8 @@ def get_companies_fininfo(companies):
     """
 
     companies_dict = {}
-    for c in companies:  
-        companies_dict[c.strip()] = get_quarterly_income(c)
+    for company in companies:  
+        companies_dict[company.strip()] = get_quarterly_income(company)
 
     return companies_dict
 
@@ -79,40 +90,44 @@ def get_companies_hist_data(companies, period):
     """
 
     companies_hist_data_dict = {}
-    for c in companies:  
-        companies_hist_data_dict[c.strip()] = get_historical_data(c, period)
+    for company in companies:  
+        companies_hist_data_dict[company.strip()] = get_historical_data(company, period)
 
     return companies_hist_data_dict
 
 
 
                                 ###### Execution ######
+try: 
+    companies_symbol_list = select_stocks()
+    companies_dict = get_companies_fininfo(companies_symbol_list)
+    companies_hist_data_dict = get_companies_hist_data(companies_symbol_list, "1mo")
+    companies_names_dict = gcreate_companies_names_dict(companies_symbol_list)
 
-companies_symbol_list = select_stocks()
-companies_dict = get_companies_fininfo(companies_symbol_list)
-companies_hist_data_dict = get_companies_hist_data(companies_symbol_list, "1mo")
-companies_names_dict = get_companies_names(companies_symbol_list)
 
+    # Create OpenAI promt
+    prompt = f""""
+    Based on the following companies financial data and historical data with complete names and stock symbols, which company performed better and which is in a lower price?\t 
+    Companies symbols and names: \t {companies_names_dict} \t
+    Finantial data: \t {companies_dict} \t
+    Historical data: \t {companies_hist_data_dict}"""
 
-# Create OpenAI promt
-prompt = f""""
-Based on the following companies financial data and historical data with complete names and stock symbols, which company performed better and which is in a lower price?\t 
-Companies symbols and names: \t {companies_names_dict} \t
-Finantial data: \t {companies_dict} \t
-Historical data: \t {companies_hist_data_dict}"""
+    # print(prompt)
 
-# print(prompt)
+    # Configure OpenAI response
+    response = openai.chat.completions.create(
+        model="gpt-3.5-turbo-16k",
+        messages=[{ "role": "user", "content": prompt}],
+        max_tokens=1000  
+    )
 
-# Configure OpenAI response
-response = openai.chat.completions.create(
-    model="gpt-3.5-turbo-16k",
-    messages=[{ "role": "user", "content": prompt}],
-    max_tokens=1000  
-)
+    # Give Format to text
+    formatted_response = textwrap.fill(response.choices[0].message.content, width=80)
 
-# Give Format to text
-formatted_response = textwrap.fill(response.choices[0].message.content, width=80)
+    if len(companies_hist_data_dict) > 1:
+    # Print OpenAI response 
+        print(formatted_response)
+    else: print("Sno historical data for one or more selected companies")
 
-# Print OpenAI response 
-print(formatted_response)
-
+except Exception as e:
+        print(f"Error during execution {e}")
